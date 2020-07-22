@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * @file
+ * Contains Mautic Forms related code.
+ */
+
+declare(strict_types = 1);
+
+use Drupal\mautic_forms\MauticFormTranslator;
+
+/**
+ * Implements hook_theme().
+ */
+function mautic_forms_theme(): array {
+  return [
+    'mautic_form_script_embed' => [
+      'variables' => [
+        'id' => NULL,
+      ],
+      'render element' => 'element',
+    ],
+    'mautic_form_cached_html' => [
+      'variables' => [
+        'id' => NULL,
+        'cached_html' => NULL,
+      ],
+      'render element' => 'element',
+    ],
+  ];
+}
+
+/**
+ * Template preprocess function for `mautic_form_script_embed`.
+ *
+ * @param array &$variables
+ *   A reference to the template variables array.
+ */
+function template_preprocess_mautic_form_script_embed(
+  array &$variables
+): void {
+  $mautic_config = Drupal::config('mautic.settings');
+
+  // Inject the mautic instance host into the template variables.
+  $variables['mautic_host'] = parse_url(
+    $mautic_config->get('mautic_base_url'),
+    PHP_URL_HOST
+  );
+}
+
+/**
+ * Implements hook_mautic_form_cached_html_alter().
+ */
+function mautic_forms_mautic_form_cached_html_alter(
+  string &$cached_html
+): void {
+  Drupal::service('mautic_forms.form_translator')
+    ->translateCachedHtml($cached_html);
+}
+
+/**
+ * Implements hook_cron().
+ */
+function mautic_forms_cron(): void {
+  Drupal::service('mautic_forms.form_synchronizer')->synchronizeForms();
+}

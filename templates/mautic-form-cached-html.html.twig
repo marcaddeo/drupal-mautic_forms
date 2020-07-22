@@ -1,0 +1,23 @@
+{#
+/**
+ * @file
+ * Default theme implementation for a 'mautic_form_cached_html' element.
+ *
+ * Available variables
+ * - attributes: A list of HTML attributes for the wrapper element.
+ * - id: The id of the Mautic form.
+ * - cached_html: The locally cached Mautic form html content.
+ *
+ * @ingroup themeable
+ */
+#}
+{%
+  set classes = [
+    'mautic-form',
+    'mautic-form--' ~ id,
+    'mautic-form--cached-html',
+  ]
+%}
+<div{{ attributes.addClass(classes) }}>
+  {{ cached_html|raw }}
+</div>

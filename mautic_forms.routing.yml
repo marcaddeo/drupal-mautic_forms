@@ -1,0 +1,15 @@
+mautic_forms.settings:
+  path: /admin/config/mautic_forms
+  defaults:
+    _form: Drupal\mautic_forms\Form\MauticFormsSettingsForm
+    _title: Mautic Forms Settings
+  requirements:
+    _permission: administer mautic forms
+
+mautic_forms.autocomplete:
+  path: /admin/mautic_forms/autocomplete
+  defaults:
+    _controller: Drupal\mautic_forms\Controller\MauticFormsController::autocomplete
+    _format: json
+  requirements:
+    _permission: use mautic forms autocomplete

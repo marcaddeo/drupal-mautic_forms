@@ -1,0 +1,6 @@
+mautic_forms.settings:
+  title: Mautic Forms Settings
+  route_name: mautic_forms.settings
+  description: Configure the Mautic Forms module
+  parent: system.admin_config_system
+  weight: 110

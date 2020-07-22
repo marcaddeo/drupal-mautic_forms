@@ -1,0 +1,22 @@
+services:
+  logger.channel.mautic_forms:
+    parent: logger.channel_base
+    arguments: ['mautic_forms']
+
+  mautic_forms.api_factory:
+    class: Drupal\mautic_forms\MauticApiFactory
+    arguments:
+      - '@config.factory'
+      - '@logger.channel.mautic_forms'
+
+  mautic_forms.form_translator:
+    class: Drupal\mautic_forms\MauticFormTranslator
+    arguments:
+      - '@string_translation'
+
+  mautic_forms.form_synchronizer:
+    class: Drupal\mautic_forms\MauticFormSynchronizer
+    arguments:
+      - '@mautic_forms.api_factory'
+      - '@queue'
+      - '@config.factory'

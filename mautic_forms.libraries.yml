@@ -1,0 +1,6 @@
+mautic-sdk:
+  version: 1.x
+  js:
+    js/mautic-form-sdk-loader.js: {}
+  dependencies:
+    - core/drupal

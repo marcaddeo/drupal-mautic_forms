@@ -1,0 +1,132 @@
+<?php
+
+/**
+ * @file
+ * Contains Mautic Forms install hooks.
+ */
+
+declare(strict_types = 1);
+
+use Drupal\Core\Database\Database;
+
+/**
+ * Add the cached_html column to the mautic_form field type.
+ */
+function mautic_forms_update_8701(): void {
+  _field_type_schema_add_columns('mautic_form', [
+    'cached_html' => [
+      'type' => 'text',
+      'size' => 'big',
+      'not null' => TRUE,
+      'initial' => '',
+    ],
+  ]);
+}
+
+/**
+ * Rename the `mautic_form` FieldFormatter to `mautic_form_script_embed`.
+ */
+function mautic_forms_update_8702(): void {
+  _field_formatter_rename('mautic_form', 'mautic_form_script_embed');
+}
+
+/**
+ * Create synchronization queues.
+ */
+function mautic_forms_update_8703(): void {
+  $queues = [
+    'mautic_forms_form_sync_manual_queue',
+    'mautic_forms_form_sync_cron_queue'
+  ];
+  foreach ($queues as $queue) {
+    Drupal::queue($queue)->createQueue();
+  }
+}
+
+/**
+ * Helper function to add new columns to an existing field type schema.
+ *
+ * @code
+ * _field_type_schema_add_columns('my_field_type', [
+ *   'new_column' => [
+ *     'type' => 'text',
+ *     'size' => 'big',
+ *     'not null' => TRUE,
+ *     'initial' => '',
+ *   ],
+ * ]);
+ * @endcode
+ *
+ * @param string $fieldType
+ *   The existing field type to add additional columns to.
+ * @param array $columns
+ *   An array of columns and their specs.
+ */
+function _field_type_schema_add_columns(
+  string $fieldType,
+  array $columns
+): void {
+  $schema = Database::getConnection()->schema();
+  $fieldManager = Drupal::service('entity_field.manager');
+  $entityTypeManager = Drupal::service('entity_type.manager');
+
+  $fieldMap = $fieldManager->getFieldMapByFieldType($fieldType);
+  foreach ($fieldMap as $entityTypeId => $fields) {
+    $fieldManager->clearCachedFieldDefinitions();
+
+    $storageDefinitions = $fieldManager->getFieldStorageDefinitions(
+      $entityTypeId
+    );
+    $storage = $entityTypeManager->getStorage($entityTypeId);
+    $tableMapping = $storage->getTableMapping();
+
+    foreach ($fields as $fieldName => $field) {
+      $storageDefinition = $storageDefinitions[$fieldName];
+
+      if (!empty($storageDefinition)) {
+        $columnNames = $tableMapping->getColumnNames($fieldName);
+        $tableNames = [$tableMapping->getFieldTableName($fieldName)];
+
+        if ($storageDefinition->isRevisionable()) {
+          $tableNames[] = $tableMapping->getDedicatedRevisionTableName(
+            $storageDefinition
+          );
+        }
+
+        foreach ($tableNames as $tableName) {
+          foreach ($columns as $column => $spec) {
+            if (!$schema->fieldExists($tableName, $columnNames[$column])) {
+              $schema->addField($tableName, $columnNames[$column], $spec);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Helper function to rename an existing FieldFormatter machine name.
+ *
+ * @param string $original
+ *   The original machine name for the FieldFormatter.
+ * @param string $new
+ *   The new machine name for the FieldFormatter.
+ */
+function _field_formatter_rename(string $original, string $new): void {
+  $displays = Drupal::entityTypeManager()
+    ->getStorage('entity_view_display')
+    ->loadMultiple();
+
+  foreach ($displays as $display) {
+    foreach ($display->getComponents() as $component => $options) {
+      if (($options['type'] ?? NULL) !== $original) {
+        continue;
+      }
+
+      $options['type'] = $new;
+      $display->setComponent($component, $options);
+      $display->save();
+    }
+  }
+}

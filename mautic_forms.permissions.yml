@@ -1,0 +1,7 @@
+administer mautic forms:
+  title: Administer Mautic Forms
+  description: Administer the Mautic Forms module settings
+
+use mautic forms autocomplete:
+  title: Use the autocomplete on the Mautic Form field type
+  description: This gives the user the ability to use the Mautic Form field types autocomplete functionality

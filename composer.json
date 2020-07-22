@@ -1,0 +1,22 @@
+{
+    "name": "drupal/mautic_forms",
+    "description": "Embed Mautic forms on your website",
+    "type": "drupal-module",
+    "homepage": "@TODO if we publish this",
+    "authors": [
+        {
+            "name": "Marc Addeo",
+            "homepage": "https://www.drupal.org/u/marcaddeo",
+            "role": "Maintainer"
+        }
+    ],
+    "support": {
+        "issues": "@TODO if publish",
+        "source": "@TODO if publish"
+    },
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "mautic/api-library": "^2.15",
+        "wa72/htmlpagedom": "^2.0"
+    }
+}

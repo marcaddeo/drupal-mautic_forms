@@ -1,0 +1,22 @@
+{#
+/**
+ * @file
+ * Default theme implementation for a 'mautic_form' element.
+ *
+ * Available variables
+ * - attributes: A list of HTML attributes for the wrapper element.
+ * - mautic_host: The hostname of the Mautic instance.
+ * - id: The id of the Mautic form.
+ *
+ * @ingroup themeable
+ */
+#}
+{%
+  set classes = [
+    'mautic-form',
+    'mautic-form--' ~ id,
+  ]
+%}
+<div{{ attributes.addClass(classes) }}>
+  <script type="text/javascript" src="//{{ mautic_host }}/form/generate.js?id={{ id }}"></script>
+</div>

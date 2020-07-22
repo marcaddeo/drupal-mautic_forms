@@ -1,0 +1,5 @@
+mautic:
+  api:
+    oauth_version: OAuth2
+    client_key: ~
+    client_secret: ~
